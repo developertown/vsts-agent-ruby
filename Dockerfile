@@ -34,20 +34,16 @@ ENV RUBY_VERSION=2.3.1 \
     RBENV_SHIMS=${RBENV_HOME}/shims \
     RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
     RUBY_BIN=${RUBY_HOME}/bin \
-    CONFIGURE_OPTS=--disable-install-doc
-    #PATH=${RBENV_SHIMS}:${RBENV_HOME}/bin:$PATH
+    CONFIGURE_OPTS=--disable-install-doc \
+    PATH=${RBENV_SHIMS}:${RBENV_HOME}/bin:$PATH
 
 ENV rbenv=${RBENV_HOME}/bin/rbenv \
     ruby=${RBENV_SHIMS}/ruby \
     gem=${RBENV_SHIMS}/gem \
     bundle=${RBENV_SHIMS}/bundle
 
-# TODO where is bundle installed?
-
-
 # Install rbenv
 RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-#RUN export HOME=/usr/local/vsts-agent
 RUN echo 'export PATH=:~/.rbenv/bin:$PATH' >> ~/.bashrc
 RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 
@@ -55,15 +51,17 @@ RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 # Install ruby-build (for install ruby)
 RUN git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-# Install Ruby, Bundler, and Rubocop
 RUN echo "###### PATH ######"
 RUN bash -c "echo $PATH | tr : '\n'"
+
+# Should say that rbenv is a function (proves successful installation)
 RUN bash -c "source ~/.bashrc && type rbenv"
+
+# Install Ruby, Bundler, and Rubocop
 RUN bash -l -c "\
     source ~/.bashrc && \
     rbenv install ${RUBY_VERSION}; \
     gem install bundler \
     gem install rubocop"
-
 
 ENV AGENT_FLAVOR=Ruby
