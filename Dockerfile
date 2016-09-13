@@ -35,7 +35,7 @@ ENV RUBY_VERSION=2.3.1 \
     RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
     RUBY_BIN=${RUBY_HOME}/bin \
     CONFIGURE_OPTS=--disable-install-doc \
-    PATH=${RBENV_SHIMS}:${RBENV_HOME}/bin:$PATH
+    PATH=~/.rbenv/shims:~/.rbenv/bin:$PATH
 
 ENV rbenv=${RBENV_HOME}/bin/rbenv \
     ruby=${RBENV_SHIMS}/ruby \
@@ -54,13 +54,13 @@ RUN git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-buil
 RUN bash -c "echo $PATH | tr : '\n'"
 
 # Should say that rbenv is a function (proves successful installation)
-RUN bash -c "source ~/.bashrc && type rbenv"
+RUN bash -l -c "type rbenv"
 
 # Install Ruby, Bundler, and Rubocop
+RUN bash -l -c "rbenv install ${RUBY_VERSION}"
+RUN bash -l -c "rbenv global ${RUBY_VERSION} && rbenv rehash"
 RUN bash -l -c "\
-    source ~/.bashrc && \
-    rbenv install ${RUBY_VERSION}; \
-    gem install bundler \
+    gem install bundler; \
     gem install rubocop"
 
 ENV AGENT_FLAVOR=Ruby
