@@ -51,7 +51,6 @@ RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
 # Install ruby-build (for install ruby)
 RUN git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-RUN echo "###### PATH ######"
 RUN bash -c "echo $PATH | tr : '\n'"
 
 # Should say that rbenv is a function (proves successful installation)
