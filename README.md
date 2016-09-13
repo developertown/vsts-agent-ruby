@@ -5,8 +5,14 @@
 # Containerized VSTS Agent for Ruby builds
 
 This image is a Ruby-specific build agent for Visual Studio Team Services, extending
-the [related parent image](https://hub.docker.com/r/developertown/vsts-agent/).  This
-image has built-in support for common use cases, and RVM so any ruby-version can be used.
+the [related parent image](https://hub.docker.com/r/developertown/vsts-agent/).
+
+Included:
+
+- rbenv
+  - ruby 2.3.1
+    - bundler
+    - rubocop
 
 ## How to use this image
 

@@ -29,28 +29,38 @@ USER vsts
 ###################################################################
 
 ENV RUBY_VERSION=2.3.1 \
-    RVM_HOME=/usr/local/vsts-agent/.rvm \
-    LATEST_RUBY_HOME=${RVM_HOME}/rubies/ruby-${RUBY_VERSION} \
-    rvm=${RVM_HOME}/scripts/rvm \
-    ruby=${LATEST_RUBY_HOME}/bin/ruby \
-    gem=${LATEST_RUBY_HOME}/bin/gem \
-    bundle=${LATEST_RUBY_HOME}/bin/bundle \
-    rubocop=${LATEST_RUBY_HOME}/bin/rubocop \
-    PATH=$PATH:${LATEST_RUBY_HOME}
+    RBENV_VERSION=${RUBY_VERSION} \
+    RBENV_HOME=/usr/local/vsts-agent/.rbenv \
+    RBENV_SHIMS=${RBENV_HOME}/shims \
+    RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
+    RUBY_BIN=${RUBY_HOME}/bin \
+    CONFIGURE_OPTS=--disable-install-doc \
+    PATH=~/.rbenv/shims:~/.rbenv/bin:$PATH
 
-# Install RVM
-RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
-RUN curl -sSL https://get.rvm.io | bash
+ENV rbenv=${RBENV_HOME}/bin/rbenv \
+    ruby=${RBENV_SHIMS}/ruby \
+    gem=${RBENV_SHIMS}/gem \
+    bundle=${RBENV_SHIMS}/bundle
+
+# Install rbenv
+RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+RUN echo 'export PATH=:~/.rbenv/bin:$PATH' >> ~/.bashrc
+RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+
+
+# Install ruby-build (for install ruby)
+RUN git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+RUN bash -c "echo $PATH | tr : '\n'"
+
+# Should say that rbenv is a function (proves successful installation)
+RUN bash -l -c "type rbenv"
 
 # Install Ruby, Bundler, and Rubocop
-RUN /bin/bash -c "\
-                    source ~/.rvm/scripts/rvm \
-                    && rvm autolibs disable \
-                    && rvm install ${RUBY_VERSION} \
-                    && rvm use ${RUBY_VERSION} \
-                    && gem install bundler --no-ri --no-rdoc \
-                    && gem install rubocop --no-ri --no-rdoc"
+RUN bash -l -c "rbenv install ${RUBY_VERSION}"
+RUN bash -l -c "rbenv global ${RUBY_VERSION} && rbenv rehash"
+RUN bash -l -c "\
+    gem install bundler; \
+    gem install rubocop"
 
 ENV AGENT_FLAVOR=Ruby
-
-RUN echo $PATH
