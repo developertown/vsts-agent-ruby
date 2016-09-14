@@ -34,8 +34,11 @@ ENV RUBY_VERSION=2.3.1 \
     RBENV_SHIMS=${RBENV_HOME}/shims \
     RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
     RUBY_BIN=${RUBY_HOME}/bin \
-    CONFIGURE_OPTS=--disable-install-doc \
-    PATH=/usr/local/vsts-agent/.rbenv/shims:/usr/local/vsts-agent/.rbenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    CONFIGURE_OPTS=--disable-install-doc
+
+# The PATH variable may have paths defined in parent containers.
+# Re-defining it here ensures that this ruby image has paths we expect.
+ENV PATH=/usr/local/vsts-agent/.rbenv/shims:/usr/local/vsts-agent/.rbenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ENV rbenv=${RBENV_HOME}/bin/rbenv \
     ruby=${RBENV_SHIMS}/ruby \
