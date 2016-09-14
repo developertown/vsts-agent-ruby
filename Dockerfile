@@ -35,7 +35,7 @@ ENV RUBY_VERSION=2.3.1 \
     RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
     RUBY_BIN=${RUBY_HOME}/bin \
     CONFIGURE_OPTS=--disable-install-doc \
-    PATH=~/.rbenv/shims:~/.rbenv/bin:$PATH
+    PATH=/usr/local/vsts-agent/.rbenv/shims:/usr/local/vsts-agent/.rbenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ENV rbenv=${RBENV_HOME}/bin/rbenv \
     ruby=${RBENV_SHIMS}/ruby \
