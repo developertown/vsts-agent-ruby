@@ -1,66 +1,27 @@
-FROM developertown/vsts-agent:2.105.2-7
+FROM developertown/vsts-agent:2.105.3-4
 
 WORKDIR /usr/local/vsts-agent
 
-# our vsts user can't apt-get install
-USER root
-
-########################################################
-# debconf: unable to initialize frontend: Dialog
-# https://github.com/phusion/baseimage-docker/issues/58
-########################################################
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TERM=linux
-
-# common dependencies for various gems
-RUN apt-get update
-RUN apt-get install \
-    openssl libreadline6 libreadline6-dev zlib1g zlib1g-dev \
-    libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev \
-    autoconf libc6-dev automake \
-    --assume-yes
-
-USER vsts
-
-###################################################################
-# As of Dec 2014, you cannot evaluate shell commands at build time.
-# http://stackoverflow.com/a/27711465/356849
-# (Otherwise, for the exec paths, you could just do `which ruby`)
-###################################################################
-
-ENV RUBY_VERSION=2.3.1 \
-    RBENV_VERSION=${RUBY_VERSION} \
+ENV AGENT_FLAVOR=Ruby \
+    RUBY_VERSION=2.3.1 \
     RBENV_HOME=/usr/local/vsts-agent/.rbenv \
     RBENV_SHIMS=${RBENV_HOME}/shims \
     RUBY_HOME=${RBENV_HOME}/versions/${RUBY_VERSION} \
-    RUBY_BIN=${RUBY_HOME}/bin \
     CONFIGURE_OPTS=--disable-install-doc \
-    PATH=/usr/local/vsts-agent/.rbenv/shims:/usr/local/vsts-agent/.rbenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
-ENV rbenv=${RBENV_HOME}/bin/rbenv \
+    rbenv=${RBENV_HOME}/bin/rbenv \
     ruby=${RBENV_SHIMS}/ruby \
     gem=${RBENV_SHIMS}/gem \
-    bundle=${RBENV_SHIMS}/bundle
+    bundle=${RBENV_SHIMS}/bundle \
+    PATH=/usr/local/vsts-agent/.rbenv/shims:/usr/local/vsts-agent/.rbenv/bin:$PATH
 
 # Install rbenv
-RUN git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-RUN echo 'export PATH=:~/.rbenv/bin:$PATH' >> ~/.bashrc
-RUN echo 'eval "$(rbenv init -)"' >> ~/.bashrc
-
-
-# Install ruby-build (for install ruby)
-RUN git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
-
-RUN bash -c "echo $PATH | tr : '\n'"
-
-# Should say that rbenv is a function (proves successful installation)
-RUN bash -l -c "type rbenv"
-
-# Install Ruby, Bundler, and Rubocop
-RUN bash -l -c "rbenv install ${RUBY_VERSION}"
-RUN bash -l -c "rbenv global ${RUBY_VERSION} && rbenv rehash"
-RUN bash -l -c "\
-    gem install bundler; \
-    gem install rubocop"
-
-ENV AGENT_FLAVOR=Ruby
+RUN \
+  #  Install rbenv \
+     git clone https://github.com/rbenv/rbenv.git ~/.rbenv \
+  && echo 'eval "$(rbenv init -)"' >> ~/.bashrc \
+  #  Install ruby-build \
+  && git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build \
+  #  Install Ruby, Bundler, and Rubocop 
+  && rbenv install ${RUBY_VERSION} \
+  && rbenv global ${RUBY_VERSION} \
+  && gem install bundler rubocop
